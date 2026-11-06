@@ -1,0 +1,28 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+*.json.key
+service-account*.json
+application_default_credentials.json
+
+# dbt generated files
+target/
+dbt_packages/
+logs/
+dbt_warehouse/target/
+dbt_warehouse/logs/
+dbt_warehouse/dbt_packages/
+
+# OS
+.DS_Store
+
+# Generated synthetic data
+data/generated/
+data/incremental/

@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_product_events_incremental
+    description: >
+      Incrementally maintained valid product events. BigQuery MERGE uses event_id
+      as the unique key. The event date is used for partitioning and customer/user
+      identifiers are used for clustering. A three-day ingestion-time lookback
+      captures newly ingested records even when their event timestamps are old.
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: event_date
+        tests:
+          - not_null
+      - name: ingested_at
+        tests:
+          - not_null

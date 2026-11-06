@@ -1,0 +1,79 @@
+version: 2
+
+models:
+  - name: int_product_events_valid
+    description: >
+      Product events with a valid user reference and matching customer ownership.
+      This model excludes soft-deleted events.
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+
+  - name: int_product_events_quarantine
+    description: >
+      Product events that fail user-reference or user/customer ownership checks.
+      Rows are retained with a quarantine_reason for investigation.
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: quarantine_reason
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - unknown_user_id
+                  - user_customer_mismatch
+                  - other_validation_failure
+
+  - name: int_customer_product_usage
+    description: Daily customer-level product engagement aggregates.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+      - name: activity_date
+        tests:
+          - not_null
+
+  - name: int_subscription_mrr
+    description: >
+      Current active subscription-level MRR estimate. Annual billing amounts
+      are normalized to monthly amounts. Confirm the source's price semantics
+      before treating this as financial reporting.
+    columns:
+      - name: subscription_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: monthly_recurring_revenue
+        tests:
+          - not_null
+
+  - name: int_monthly_recurring_revenue
+    description: >
+      Current MRR aggregated by customer and currency. This is not a historical
+      month-end MRR trend.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+      - name: currency
+        tests:
+          - not_null
+      - name: current_mrr
+        tests:
+          - not_null
