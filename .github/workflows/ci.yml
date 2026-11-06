@@ -1,0 +1,61 @@
+
+name: NexusFlow CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate Python and dbt
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: |
+          python -m compileall -q src scripts
+
+      - name: Configure dbt profile for parsing
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<'EOF'
+          saas_warehouse:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: oauth
+                project: data-engineering-course-511511
+                dataset: saas_staging
+                location: asia-south2
+                threads: 4
+                job_execution_timeout_seconds: 300
+                job_retries: 1
+          EOF
+
+      - name: Validate dbt project
+        working-directory: dbt_warehouse/saas_warehouse
+        env:
+          DBT_ENGINE_MANAGE_STATE: "0"
+        run: |
+          dbt debug
+          dbt parse
