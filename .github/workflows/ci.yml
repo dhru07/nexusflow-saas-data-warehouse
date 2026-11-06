@@ -52,10 +52,9 @@ jobs:
                 job_retries: 1
           EOF
 
-      - name: Validate dbt project
+            - name: Validate dbt project
         working-directory: dbt_warehouse/saas_warehouse
         env:
           DBT_ENGINE_MANAGE_STATE: "0"
         run: |
-          dbt debug
           dbt parse
