@@ -34,8 +34,23 @@ jobs:
         run: |
           python -m compileall -q src scripts
 
-      - name: Create dbt profiles directory
-        run: mkdir -p ~/.dbt
+      - name: Configure dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<'EOF'
+          saas_warehouse:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: oauth
+                project: data-engineering-course-511511
+                dataset: saas_staging
+                location: asia-south2
+                threads: 4
+                job_execution_timeout_seconds: 300
+                job_retries: 1
+          EOF
 
       - name: Validate dbt project
         working-directory: dbt_warehouse/saas_warehouse
